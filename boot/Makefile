@@ -21,5 +21,5 @@ COBJ/%.o: %.c
 	$(CC) -c $< -o $@ $(C_FLAGS) $(C_FLAGS_WARNINGS)
 
 clean:
-	rm -f ASMOBJ/*
-	rm -f COBJ/*
+	rm -f $(AS_OBJS)
+	rm -f $(C_OBJS)

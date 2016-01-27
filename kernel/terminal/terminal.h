@@ -23,4 +23,6 @@ void terminal_putchar(char);
 void terminal_putstring(const char *);
 void terminal_scroll_down(void);
 
+void terminal_move_cursor(int, int);
+
 #endif /* TERMINAL_H */

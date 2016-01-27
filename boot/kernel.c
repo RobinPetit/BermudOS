@@ -12,11 +12,12 @@ struct terminal_s terminal;
 
 void kernel_main(void)
 {
-	int i;
+	/* int i; */
 	terminal_init();
-	for(i = 0; i < 8; ++i)
+	terminal_putstring("This is BermudOS!");
+	/* for(i = 0; i < 8; ++i)
 		terminal_putstring("abcdefghijklmnopqrstuvwxyzzyxwvutsrqponmlkjihgfedcba\nABCDEFGHIJKLMNOPQRSTUVWXYZZYXWVUTSRQPONMLKJIHGFEDCBA\n01234567899876543210\n");
 	terminal_put_entry_at('d', terminal.colour, VGA_WIDTH/2, VGA_HEIGHT-1);
-	terminal_scroll_down();
+	terminal_scroll_down(); */
 }
 
