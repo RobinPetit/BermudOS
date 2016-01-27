@@ -1,6 +1,6 @@
 #include "terminal.h"
-#include "memcpy.h"
-#include "memset.h"
+#include "../memcpy.h"
+#include "../memset.h"
 
 void terminal_init(void)
 {

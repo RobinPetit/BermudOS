@@ -2,7 +2,7 @@
 #define TERMINAL_H
 
 #include <stddef.h>
-#include "VGA_management.h"
+#include "../video/VGA_management.h"
 
 struct terminal_s
 {

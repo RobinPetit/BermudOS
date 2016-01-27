@@ -6,7 +6,7 @@
 #endif
 
 /* Only compiler-specific headers can be included */
-#include "terminal.h"
+#include "../kernel/terminal/terminal.h"
 
 struct terminal_s terminal;
 
