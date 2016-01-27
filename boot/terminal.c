@@ -1,4 +1,6 @@
 #include "terminal.h"
+#include "memcpy.h"
+#include "memset.h"
 
 void terminal_init(void)
 {
@@ -26,7 +28,7 @@ void terminal_new_line(void)
 	terminal.column = 0;
 	++terminal.row;
 	if(terminal.row == VGA_HEIGHT)
-		terminal.row = 0;
+		terminal_scroll_down();
 }
 
 void terminal_putchar(char c)
@@ -46,5 +48,14 @@ void terminal_putstring(const char *str)
 {
 	while(*str != '\0')
 		terminal_putchar(*(str++));
+}
+
+void terminal_scroll_down(void)
+{
+	int i;
+	memcpy(terminal.buffer, &terminal.buffer[VGA_COORD_TO_IDX(0, 1)], (VGA_WIDTH*(VGA_HEIGHT-1))*sizeof(uint16_t));
+
+	for(i = 0; i < VGA_WIDTH; ++i)
+		terminal_put_entry_at(' ', terminal.colour, i, VGA_HEIGHT-1);
 }
 

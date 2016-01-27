@@ -21,5 +21,6 @@ void terminal_put_entry_at(char, colour_t, size_t, size_t);
 void terminal_new_line(void);
 void terminal_putchar(char);
 void terminal_putstring(const char *);
+void terminal_scroll_down(void);
 
 #endif /* TERMINAL_H */
