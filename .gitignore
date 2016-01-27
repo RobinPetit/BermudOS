@@ -1,0 +1,8 @@
+# Ignore vim temporary files
+*.swp
+
+# Ignore pre-compiled files
+*.o
+*.bin
+*.iso
+
