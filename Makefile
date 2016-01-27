@@ -1,3 +1,4 @@
+CC=i686-elf-gcc
 C_FLAGS=-std=gnu99 -ffreestanding -O2
 LINKER_FILE=boot/linker.ld
 OS_NAME=BermudOS
