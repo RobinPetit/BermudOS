@@ -5,7 +5,7 @@ AS_FILES=$(wildcard *.asm)
 AS_OBJS=$(patsubst %.asm, ASMOBJ/%.o, $(AS_FILES))
 C_FILES=$(wildcard *.c)
 C_OBJS=$(patsubst %.c, COBJ/%.o, $(C_FILES))
-C_FLAGS=-std=gnu99 -ffreestanding -O2
+C_FLAGS=-std=gnu99 -ffreestanding -O2 -I ../include/BermudOS
 C_FLAGS_WARNINGS=-Wall -Wextra
 
 all: CC asm

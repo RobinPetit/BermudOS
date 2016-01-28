@@ -53,7 +53,8 @@ void terminal_putchar(char c)
 		if(terminal.column == VGA_WIDTH)
 			terminal_new_line();
 	}
-	terminal_move_cursor(terminal.column, terminal.row);
+	if(!terminal.writing)
+		terminal_move_cursor(terminal.column, terminal.row);
 }
 
 void terminal_putstring(const char *str)
