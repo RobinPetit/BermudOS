@@ -2,7 +2,11 @@
 #define MEMSET_H
 
 #include "_memtypes.h"
+#include <stddef.h>
+#include "_memtypes.h"
 
-void *memset(void *, int, size_t);
+void *memsetb(void *, BYTE, size_t);
+void *memsetw(void *, WORD, size_t);
+void *memsetd(void *, DWORD, size_t);
 
 #endif /* MEMSET_H */

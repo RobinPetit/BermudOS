@@ -1,9 +1,10 @@
 #ifndef _MEMTYPES_H
 #define _MEMTYPES_H
 
-#include <stddef.h>
+#include <stdint.h>
 
-typedef unsigned char BYTE;
-typedef unsigned int WORD;
+typedef uint8_t BYTE;
+typedef uint16_t WORD;
+typedef uint32_t DWORD;
 
 #endif /* _MEMTYPES_H */

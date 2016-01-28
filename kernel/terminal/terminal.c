@@ -3,20 +3,30 @@
 #include "../memset.h"
 #include "../../io/out.h"
 
+static VGA_entry_t empty_cell;
+
+/** static functions prototypes **/
+
+static void terminal_move_cursor(int, int);
+
+/** code **/
+
 void terminal_init(void)
 {
-	size_t y, x;
 	terminal.row = terminal.column = 0;
-	terminal.colour = make_VGA_entry(COLOR_LIGHT_GREY, COLOR_WHITE);
-	terminal.buffer = (uint16_t *)(VGA_BUFFER_ADDRESS);
-	for(y = 0; y < VGA_HEIGHT; ++y)
-		for(x = 0; x < VGA_WIDTH; ++x)
-			terminal.buffer[VGA_COORD_TO_IDX(x, y)] = make_VGA_entry(' ', terminal.colour);
+	terminal.colour = make_colour(COLOUR_WHITE, COLOUR_BLACK);
+	terminal.buffer = (VGA_entry_t *)(VGA_BUFFER_ADDRESS);
+	terminal.writing = false;
+
+	empty_cell = make_VGA_entry(' ', terminal.colour);
+
+	terminal_clear_screen();
 }
 
 void terminal_set_colour(colour_t colour)
 {
 	terminal.colour = colour;
+	empty_cell = make_VGA_entry(' ', terminal.colour);
 }
 
 void terminal_put_entry_at(char c, colour_t colour, size_t x, size_t y)
@@ -29,7 +39,7 @@ void terminal_new_line(void)
 	terminal.column = 0;
 	++terminal.row;
 	if(terminal.row == VGA_HEIGHT)
-		terminal_scroll_down();
+		terminal_scroll_up();
 }
 
 void terminal_putchar(char c)
@@ -52,19 +62,25 @@ void terminal_putstring(const char *str)
 		terminal_putchar(*(str++));
 }
 
-void terminal_scroll_down(void)
+void terminal_scroll_up(void)
 {
-	int i;
-	memcpy(terminal.buffer, &terminal.buffer[VGA_COORD_TO_IDX(0, 1)], (VGA_WIDTH*(VGA_HEIGHT-1))*sizeof(uint16_t));
-
-	for(i = 0; i < VGA_WIDTH; ++i)
-		terminal_put_entry_at(' ', terminal.colour, i, VGA_HEIGHT-1);
+	memcpy(terminal.buffer, &terminal.buffer[VGA_COORD_TO_IDX(0, 1)],
+	       (VGA_WIDTH*(VGA_HEIGHT-1))*sizeof(VGA_entry_t));
+	memsetw(&terminal.buffer[VGA_COORD_TO_IDX(0, VGA_HEIGHT-1)], empty_cell, VGA_WIDTH);
 }
 
-void terminal_move_cursor(int x, int y)
+void terminal_clear_screen(void)
+{
+	memsetw(terminal.buffer, empty_cell, VGA_HEIGHT*VGA_WIDTH);
+}
+
+/** static functions code **/
+
+static void terminal_move_cursor(int x, int y)
 {
 	uint16_t location = (y*VGA_WIDTH) + x;
 
+	/* 0x3D4-0x3D5 are in VGA address space */
 	outb(0x3D4, 0x0F);
 	outb(0x3D5, (BYTE)(location & 0xFF));
 	outb(0x3D4, 0x0E);
