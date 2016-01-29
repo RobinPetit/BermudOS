@@ -1,7 +1,4 @@
-set(SOURCES
-	"in.c"
-	"out.c"
-	)
+file(GLOB SOURCES "*.c")
 
 add_library(io ${SOURCES})
 

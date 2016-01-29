@@ -5,4 +5,17 @@
 *.o
 *.bin
 *.iso
+# And libraries
+*.a
 
+# Keep only CMakeLists files and do not take Makefiles
+Makefile
+**/Makefile
+
+# Do not track CMake tmp directories
+CMakeFiles/
+**/CMakeFiles/
+# Or files
+*.cmake
+**/*.cmake
+CMakeCache.txt

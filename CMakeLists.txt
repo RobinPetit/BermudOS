@@ -6,7 +6,7 @@ project(BermudOS LANGUAGES C ASM_NASM)
 
 #Set up the C compiler
 set(CMAKE_C_COMPILER "i686-elf-gcc")
-set(CMAKE_C_FLAGS "-std=gnu99 -ffreestanding -O2")
+set(CMAKE_C_FLAGS "-std=gnu99 -ffreestanding -O2 -I ${PROJECT_SOURCE_DIR}/include/BermudOS/")
 
 #Set up the linker
 set(LINKER_FILE "${PROJECT_SOURCE_DIR}/boot/linker.ld")
@@ -25,11 +25,12 @@ add_executable(${PROJECT_NAME}.bin ${SOURCES})
 
 add_subdirectory(kernel)
 add_subdirectory(io)
+add_subdirectory(libc)
 
 #Add libraries
-target_link_libraries(${PROJECT_NAME}.bin gcc kernel io)
+target_link_libraries(${PROJECT_NAME}.bin gcc kernel io libc)
 
-#Make the iso:
+#Make the iso
 file(COPY "${CMAKE_SOURCE_DIR}/boot/iso" DESTINATION "${CMAKE_BINARY_DIR}/boot")
 #First, delete old iso
 add_custom_command(TARGET ${PROJECT_NAME}.bin POST_BUILD COMMAND

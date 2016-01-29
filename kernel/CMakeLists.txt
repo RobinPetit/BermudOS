@@ -1,9 +1,4 @@
-set(SOURCES
-	"memcpy.c"
-	"memset.c"
-	"video/VGA_management.c"
-	"terminal/terminal.c"
-	)
+file(GLOB SOURCES "**/*.c" "*.c")
 
 add_library(kernel ${SOURCES})
 
