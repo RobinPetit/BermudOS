@@ -1,4 +1,4 @@
-#include "memcpy.h"
+#include <string.h>
 
 /* Decompose into 32-bit blocks and 8-bit blocks so transfer
    may be faster */

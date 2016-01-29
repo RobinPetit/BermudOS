@@ -15,6 +15,8 @@ void kernel_main(void)
 {
 	terminal_init();
 	puts("This is BermudOS with puts!");
-	printf("This is BermudOS with printf!");
+	printf("This is BermudOS with printf!\n");
+	printf("format is %%X %%x %%d %%i %%o... and result is %X %x %d %i %o\n",
+	       256, 256, 256, 256, 256);
 }
 

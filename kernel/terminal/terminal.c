@@ -1,6 +1,5 @@
+#include <string.h>
 #include "terminal.h"
-#include "../memcpy.h"
-#include "../memset.h"
 #include "../../io/out.h"
 
 static VGA_entry_t empty_cell;
