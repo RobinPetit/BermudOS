@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
+set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf32")
+
 project(BermudOS LANGUAGES C ASM_NASM)
 
 #Set up the C compiler
@@ -7,20 +9,23 @@ set(CMAKE_C_COMPILER "i686-elf-gcc")
 set(CMAKE_C_FLAGS "-std=gnu99 -ffreestanding -O2")
 
 #Set up the linker
-set(LINKER_FILE "boot/linker.ld")
-set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -nostdlib -T ${LINKER_FILE}")
-set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <FLAGS> <CMAKE_C_LINK_FLAGS>
-<LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
+set(LINKER_FILE "${PROJECT_SOURCE_DIR}/boot/linker.ld")
+set(CMAKE_C_LINK_FLAGS "-nostdlib -T ${LINKER_FILE}")
+#Some flags are set by default; disable them
+set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 
-set(C_SOURCES "boot/kernel.c")
-set(ASM_SOURCES "boot/boot.asm")
+#List the main executable source files
+set(SOURCES
+	"boot/kernel.c"
+	"boot/boot.asm"
+	)
 
 #Create the main executable
-add_executable(${PROJECT_NAME}.bin ${C_SOURCES} ${ASM_SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 add_subdirectory(kernel)
 add_subdirectory(io)
 
 #Add libraries
-target_link_libraries(${PROJECT_NAME}.bin gcc kernel io)
+target_link_libraries(${PROJECT_NAME} gcc kernel io)
 
