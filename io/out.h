@@ -2,7 +2,7 @@
 #define OUT_H
 
 #include <stdint.h>
-#include "../kernel/_memtypes.h"
+#include <mem/_memtypes.h>
 
 void outb(uint16_t, BYTE);
 

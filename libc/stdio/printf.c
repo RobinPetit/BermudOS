@@ -2,36 +2,20 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include <mem/_memtypes.h>
 #include "../../kernel/terminal/terminal.h"
+#include "printf.h"
 
 #define BUFFER_LENGTH 32
 
-enum
-{
-	MINUS=0,  /* left justifies */
-	PLUS,     /* forces to sign the value */
-	SPACE,    /* adds a space if no sign is written */
-	SHARP,    /* explicits the base the number is written in */
-	ZERO      /* uses '0' as padding instead of ' ' */
-};
-
-enum
-{
-	NONE=0,     /* no modifier is given (default) */
-	CHAR,       /* hh */
-	SHORT,      /* h */
-	LONG,       /* l */
-	LONGLONG,   /* ll */
-	SIZE_T,     /* z */
-	INTMAX_T,   /* j */
-	PTRDIFF_T,  /* t */
-	LONGDOUBLE  /* L */
-};
-
 static int find_flags(BYTE *, const char * restrict);
+static int find_width(BYTE *, const char * restrict);
+static int find_precision(BYTE *, const char * restrict);
 static int find_length_modifier(BYTE *, const char * restrict);
-static int print_arg(BYTE, BYTE, BYTE, va_list *);
+static int print_arg(const struct printf_arg_s *, va_list *);
+
+static int get_int_from_str(const char * restrict, int *);
 
 int printf(const char * restrict format, ...)
 {
@@ -46,17 +30,19 @@ int printf(const char * restrict format, ...)
 int vprintf(const char * restrict format, va_list arg_list)
 {
 	ptrdiff_t i = 0;
-	BYTE flags;
-	BYTE len_modifier = NONE;
+	struct printf_arg_s arg;
 
 	while(format[i] != '\0')
 	{
 		if(format[i] == '%')
 		{
-			i += find_flags(&flags, &format[i+1]);
-			i += find_length_modifier(&len_modifier, &format[i+1]);
+			i += find_flags(&arg.flags, &format[i+1]);
+			i += find_width(&arg.width, &format[i+1]);
+			i += find_precision(&arg.precision, &format[i+1]);
+			i += find_length_modifier(&arg.len_modifier, &format[i+1]);
+			arg.conversion_spec = format[i];
 			if(format[i] != '\0')
-				print_arg(flags, len_modifier, format[i], &arg_list);
+				print_arg(&arg, &arg_list);
 			else
 				break;
 		}
@@ -79,16 +65,16 @@ static int find_flags(BYTE *flag, const char * restrict str)
 		switch(str[i])
 		{
 		case '0':
-			*flag |= (1 << ZERO);
+			*flag |= ZERO;
 			break;
 		case '-':
-			*flag |= (1 << MINUS);
+			*flag |= MINUS;
 			break;
 		case '+':
-			*flag |= (1 << PLUS);
+			*flag |= PLUS;
 			break;
 		case ' ':
-			*flag |= (1 << SPACE);
+			*flag |= SPACE;
 			break;
 		default:
 			loop = false;
@@ -97,6 +83,35 @@ static int find_flags(BYTE *flag, const char * restrict str)
 		++i;
 	}
 	return i;
+}
+
+static int find_width(BYTE *width, const char * restrict str)
+{
+	int ret;
+	int value;
+	*width = (*str == '*') ? ASTERISK : 0;
+	if(*width != 0)
+		return 1;
+	ret = get_int_from_str(str, &value);
+	*width = (BYTE)(value);
+	return ret;
+}
+
+static int find_precision(BYTE *precision, const char * restrict str)
+{
+	int ret;
+	int value;
+	*precision = NOT_MENTIONNED;
+	if(*str != '.')
+		return 0;
+	if(str[1] == '*')
+	{
+		*precision = ASTERISK;
+		return 1;
+	}
+	ret = get_int_from_str(str, &value);
+	*precision = (BYTE)(value);
+	return ret;
 }
 
 static int find_length_modifier(BYTE *modifier, const char * restrict str)
@@ -126,14 +141,14 @@ static int find_length_modifier(BYTE *modifier, const char * restrict str)
 	return (*modifier == NONE ? 0 : ((*modifier == CHAR || *modifier == LONGLONG) ? 2 : 1));
 }
 
-static int print_arg(BYTE flags, BYTE length_modifier, BYTE conversion_specifier, va_list *arg_list)
+static int print_arg(const struct printf_arg_s *fmt_arg, va_list *arg_list)
 {
 	static const char *lower_digits = "0123456789abcdef";
 	static const char *upper_digits = "0123456789ABCDEF";
-	const char *used_digits = (conversion_specifier == 'X' ? upper_digits : lower_digits);
+	const char *used_digits = (fmt_arg->conversion_spec == 'X' ? upper_digits : lower_digits);
 	int idx = BUFFER_LENGTH-2;
-	unsigned radix = ((conversion_specifier == 'd' || conversion_specifier == 'i') ? 10 :
-	                  (conversion_specifier == 'o' ? 8 : 16));
+	unsigned radix = ((fmt_arg->conversion_spec == 'd' || fmt_arg->conversion_spec == 'i') ? 10 :
+	                  (fmt_arg->conversion_spec == 'o' ? 8 : 16));
 	char buffer[BUFFER_LENGTH];
 	bool negative = false;
 	union
@@ -148,7 +163,7 @@ static int print_arg(BYTE flags, BYTE length_modifier, BYTE conversion_specifier
 	} arg;
 
 	memsetb(buffer, '\0', BUFFER_LENGTH);
-	switch(conversion_specifier)
+	switch(fmt_arg->conversion_spec)
 	{
 	case 'd':
 	case 'i':
@@ -161,12 +176,11 @@ static int print_arg(BYTE flags, BYTE length_modifier, BYTE conversion_specifier
 			negative = true;
 			arg.i_arg = -arg.i_arg;
 		}
-		do
+		while(arg.i_arg != 0)
 		{
 			buffer[idx--] = used_digits[arg.i_arg%radix];
 			arg.i_arg /= radix;
 		}
-		while(arg.i_arg != 0);
 		if(negative)
 			buffer[idx--] = '-';
 		break;
@@ -177,5 +191,17 @@ static int print_arg(BYTE flags, BYTE length_modifier, BYTE conversion_specifier
 		break;
 	}
 	terminal_putstring(&buffer[idx+1]);
+}
+
+static int get_int_from_str(const char * restrict str, int *value)
+{
+	int i = 0;
+	*value = 0;
+	while(isdigit(str[i]))
+	{
+		*value *= 10;
+		*value += str[i++] - '0';
+	}
+	return i;
 }
 

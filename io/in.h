@@ -2,7 +2,7 @@
 #define IN_H
 
 #include <stdint.h>
-#include "../kernel/_memtypes.h"
+#include <mem/_memtypes.h>
 
 BYTE inb(uint16_t port);
 
