@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <mem/_memtypes.h>
+#include <strconv/strconv.h>
 #include "../../kernel/terminal/terminal.h"
 #include "printf.h"
 
@@ -14,8 +15,6 @@ static int find_width(BYTE *, const char * restrict);
 static int find_precision(BYTE *, const char * restrict);
 static int find_length_modifier(BYTE *, const char * restrict);
 static int print_arg(const struct printf_arg_s *, va_list *);
-
-static int get_int_from_str(const char * restrict, int *);
 
 int printf(const char * restrict format, ...)
 {
@@ -62,23 +61,22 @@ static int find_flags(BYTE *flag, const char * restrict str)
 	int i = 0;
 	while(str[i] != '\0' && loop)
 	{
-		switch(str[i])
+		if(str[i] == '0')
 		{
-		case '0':
+			if(*flag & ZERO)  /* if flag ZERO is already set */
+				return i;    /* 	we might have %00d so 2nd char '0' must be trated as width */
 			*flag |= ZERO;
-			break;
-		case '-':
+		}
+		else if(str[i] == '-')
 			*flag |= MINUS;
-			break;
-		case '+':
+		else if(str[i] == '+')
 			*flag |= PLUS;
-			break;
-		case ' ':
+		else if(str[i] == ' ')
 			*flag |= SPACE;
-			break;
-		default:
+		else
+		{
 			loop = false;
-			break;
+			--i;
 		}
 		++i;
 	}
@@ -92,7 +90,7 @@ static int find_width(BYTE *width, const char * restrict str)
 	*width = (*str == '*') ? ASTERISK : 0;
 	if(*width != 0)
 		return 1;
-	ret = get_int_from_str(str, &value);
+	ret = str_to_int(str, &value, 10);
 	*width = (BYTE)(value);
 	return ret;
 }
@@ -109,7 +107,7 @@ static int find_precision(BYTE *precision, const char * restrict str)
 		*precision = ASTERISK;
 		return 1;
 	}
-	ret = get_int_from_str(str, &value);
+	ret = str_to_int(str, &value, 10);
 	*precision = (BYTE)(value);
 	return ret;
 }
@@ -143,10 +141,7 @@ static int find_length_modifier(BYTE *modifier, const char * restrict str)
 
 static int print_arg(const struct printf_arg_s *fmt_arg, va_list *arg_list)
 {
-	static const char *lower_digits = "0123456789abcdef";
-	static const char *upper_digits = "0123456789ABCDEF";
-	const char *used_digits = (fmt_arg->conversion_spec == 'X' ? upper_digits : lower_digits);
-	int idx = BUFFER_LENGTH-2;
+	static int (*const int_to_str_fns[])(char * restrict, int, int) = {int_to_str_lower, int_to_str_upper};
 	unsigned radix = ((fmt_arg->conversion_spec == 'd' || fmt_arg->conversion_spec == 'i') ? 10 :
 	                  (fmt_arg->conversion_spec == 'o' ? 8 : 16));
 	char buffer[BUFFER_LENGTH];
@@ -171,37 +166,15 @@ static int print_arg(const struct printf_arg_s *fmt_arg, va_list *arg_list)
 	case 'x':
 	case 'X':
 		arg.i_arg = va_arg(*arg_list, int);
-		if(arg.i_arg < 0)
-		{
-			negative = true;
-			arg.i_arg = -arg.i_arg;
-		}
-		while(arg.i_arg != 0)
-		{
-			buffer[idx--] = used_digits[arg.i_arg%radix];
-			arg.i_arg /= radix;
-		}
-		if(negative)
-			buffer[idx--] = '-';
+		int_to_str_fns[fmt_arg->conversion_spec == 'X'](buffer, arg.i_arg, radix);
 		break;
 	case '%':
-		buffer[idx--] = '%';
+		buffer[0] = '%';
 		break;
 	default:
 		break;
 	}
-	terminal_putstring(&buffer[idx+1]);
+	terminal_putstring(buffer);
 }
 
-static int get_int_from_str(const char * restrict str, int *value)
-{
-	int i = 0;
-	*value = 0;
-	while(isdigit(str[i]))
-	{
-		*value *= 10;
-		*value += str[i++] - '0';
-	}
-	return i;
-}
 

@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <stddef.h>
+#include <string.h>
 
 int isspace(int c)
 {
