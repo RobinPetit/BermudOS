@@ -6,13 +6,16 @@ project(BermudOS LANGUAGES C ASM_NASM)
 
 #Set up the C compiler
 set(CMAKE_C_COMPILER "i686-elf-gcc")
-set(CMAKE_C_FLAGS "-std=gnu99 -ffreestanding -O2 -I ${PROJECT_SOURCE_DIR}/include/BermudOS/")
+set(CMAKE_C_FLAGS "-std=gnu99 -ffreestanding -O2 ")
 
 #Set up the linker
 set(LINKER_FILE "${PROJECT_SOURCE_DIR}/boot/linker.ld")
 set(CMAKE_C_LINK_FLAGS "-nostdlib -T ${LINKER_FILE}")
 #Some flags are set by default; disable them
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+
+#Add include directory
+include_directories(${PROJECT_SOURCE_DIR}/include/BermudOS)
 
 #List the main executable source files
 set(SOURCES
