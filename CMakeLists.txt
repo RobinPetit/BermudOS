@@ -29,3 +29,15 @@ add_subdirectory(io)
 #Add libraries
 target_link_libraries(${PROJECT_NAME} gcc kernel io)
 
+#Make the iso:
+file(COPY "${CMAKE_SOURCE_DIR}/boot/iso" DESTINATION "${CMAKE_BINARY_DIR}/boot")
+#First, delete old iso
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+	rm -f ${CMAKE_BINARY_DIR}/boot/iso/boot/${PROJECT_NAME}.iso)
+#Then copy the executable
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+	cp ${PROJECT_NAME} ${CMAKE_BINARY_DIR}/boot/iso/boot/${PROJECT_NAME})
+#Finaly create the iso with grub
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+	grub-mkrescue -o ${PROJECT_NAME}.iso ${CMAKE_BINARY_DIR}/boot/iso)
+
