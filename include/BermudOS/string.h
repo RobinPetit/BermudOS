@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <mem/_memtypes.h>
 
+char *strchr(const char *, int);
 char *strrchr(const char *, int);
 size_t strlen(const char *);
 
