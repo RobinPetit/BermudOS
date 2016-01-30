@@ -2,8 +2,8 @@
 
 char *strstr(const char *a, const char *b)
 {
-	int i = 0;
-	int j;
+	size_t i = 0;
+	size_t j;
 	size_t len_b = strlen(b);
 	while(a[i] != '\0')
 	{

@@ -205,7 +205,6 @@ static int print_arg(const struct printf_arg_s *fmt_arg, va_list *arg_list)
 		buffer[0] = '%';
 		break;
 	default:
-		printf("specifier is "); putchar(fmt_arg->conversion_spec); puts("");
 		break;
 	}
 	terminal_putstring(buffer);
