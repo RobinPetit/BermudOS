@@ -6,7 +6,7 @@ project(BermudOS LANGUAGES C ASM_NASM)
 
 #Set up the C compiler
 set(CMAKE_C_COMPILER "i686-elf-gcc")
-set(CMAKE_C_FLAGS "-std=gnu99 -ffreestanding -O2 ")
+set(CMAKE_C_FLAGS "-std=gnu99 -ffreestanding -O2 -Wall -Wextra")
 
 #Set up the linker
 set(LINKER_FILE "${PROJECT_SOURCE_DIR}/boot/linker.ld")

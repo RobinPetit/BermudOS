@@ -28,7 +28,7 @@ int printf(const char * restrict format, ...)
 
 int vprintf(const char * restrict format, va_list arg_list)
 {
-	ptrdiff_t i = 0;
+	unsigned int i = 0;
 	struct printf_arg_s arg;
 
 	while(format[i] != '\0')
@@ -39,7 +39,7 @@ int vprintf(const char * restrict format, va_list arg_list)
 			i += find_width(&arg.width, &format[i+1]);
 			i += find_precision(&arg.precision, &format[i+1]);
 			i += find_length_modifier(&arg.len_modifier, &format[i+1]);
-			arg.conversion_spec = format[i];
+			arg.conversion_spec = format[++i];
 			if(format[i] != '\0')
 				print_arg(&arg, &arg_list);
 			else
@@ -59,6 +59,7 @@ static int find_flags(BYTE *flag, const char * restrict str)
 {
 	bool loop = true;
 	int i = 0;
+	*flag = 0;
 	while(str[i] != '\0' && loop)
 	{
 		if(str[i] == '0')
@@ -136,16 +137,33 @@ static int find_length_modifier(BYTE *modifier, const char * restrict str)
 		*modifier = PTRDIFF_T;
 	else if(*str == 'L')
 		*modifier = LONGDOUBLE;
+	else
+		*modifier = NONE;
 	return (*modifier == NONE ? 0 : ((*modifier == CHAR || *modifier == LONGLONG) ? 2 : 1));
 }
 
 static int print_arg(const struct printf_arg_s *fmt_arg, va_list *arg_list)
 {
-	static int (*const int_to_str_fns[])(char * restrict, int, int) = {int_to_str_lower, int_to_str_upper};
+	static unsigned int (*const int_to_str_fns[2])(char * restrict, int, int) =
+	{
+		int_to_str_lower, int_to_str_upper
+	};
+	static unsigned int (* const int8_t_to_str_fns[2])(char * restrict, int8_t, int) =
+	{
+		int8_t_to_str_lower, int8_t_to_str_upper
+	};
+	static unsigned int (* const int16_t_to_str_fns[2])(char * restrict, int16_t, int) =
+	{
+		int16_t_to_str_lower, int16_t_to_str_upper
+	};
+	static unsigned int (* const int32_t_to_str_fns[2])(char * restrict, int32_t, int) =
+	{
+		int32_t_to_str_lower, int32_t_to_str_upper
+	};
 	unsigned radix = ((fmt_arg->conversion_spec == 'd' || fmt_arg->conversion_spec == 'i') ? 10 :
 	                  (fmt_arg->conversion_spec == 'o' ? 8 : 16));
 	char buffer[BUFFER_LENGTH];
-	bool negative = false;
+	int lower_upper_idx = (fmt_arg->conversion_spec == 'X') ? 1 : 0;
 	union
 	{
 		/*void *p_arg;*/
@@ -166,12 +184,28 @@ static int print_arg(const struct printf_arg_s *fmt_arg, va_list *arg_list)
 	case 'x':
 	case 'X':
 		arg.i_arg = va_arg(*arg_list, int);
-		int_to_str_fns[fmt_arg->conversion_spec == 'X'](buffer, arg.i_arg, radix);
+		if(fmt_arg->len_modifier == NONE)
+			int_to_str_fns[lower_upper_idx](buffer, arg.i_arg, radix);
+		else if(fmt_arg->len_modifier == CHAR)
+			int8_t_to_str_fns[lower_upper_idx](buffer, (int8_t)(arg.i_arg), radix);
+		else if(fmt_arg->len_modifier == SHORT)
+			int16_t_to_str_fns[lower_upper_idx](buffer, (int16_t)(arg.i_arg), radix);
+		else if(fmt_arg->len_modifier == LONG)
+			int32_t_to_str_fns[lower_upper_idx](buffer, (int32_t)(arg.i_arg), radix);
+		else
+			putchar('E');
+		/*else if(fmt_arg->len_modifier == LONGLONG)
+			TODO: not handled yet */
+		/*else if(fmt_arg->modifier == SIZE_T)
+		else if(fmt_arg->modifier == INTMAX_T)
+		else if(fmt_arg->modifier == PTRDIFF_T)
+		else if(fmt_arg->modifier == LONGDOUBLE)*/
 		break;
 	case '%':
 		buffer[0] = '%';
 		break;
 	default:
+		printf("specifier is "); putchar(fmt_arg->conversion_spec); puts("");
 		break;
 	}
 	terminal_putstring(buffer);

@@ -1,27 +1,119 @@
 #include <strconv/strconv.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* static prototypes */
 
-static int int_to_str(char *restrict, int, int);
-static int nb_of_digits_in_base(int, int);
+static unsigned int int_to_str(char *restrict, int, int);
+static unsigned int int8_t_to_str(char * restrict, int8_t, int);
+static unsigned int int16_t_to_str(char * restrict, int16_t, int);
+static unsigned int int32_t_to_str(char * restrict, int32_t, int);
+static unsigned int unsigned_int_to_str(char * restrict, unsigned int, int);
+static unsigned int uint8_t_to_str(char * restrict, uint8_t, int);
+static unsigned int uint16_t_to_str(char * restrict, uint16_t, int);
+static unsigned int uint32_t_to_str(char * restrict, uint32_t, int);
+static unsigned int nb_of_digits_in_base(uint32_t, int);
 static bool is_correct_digit_in_base(char, unsigned int);
 
 static bool uses_upper = true;
 
 /* interface functions */
 
-int int_to_str_lower(char * restrict str, int value, int radix)
+unsigned int int_to_str_lower(char * restrict buffer, int value, int radix)
 {
 	uses_upper = false;
-	int_to_str(str, value, radix);
+	return int_to_str(buffer, value, radix);
 }
 
-int int_to_str_upper(char * restrict str, int value, int radix)
+unsigned int int_to_str_upper(char * restrict buffer, int value, int radix)
 {
 	uses_upper = true;
-	int_to_str(str, value, radix);
+	return int_to_str(buffer, value, radix);
+}
+
+unsigned int int8_t_to_str_lower(char * restrict buffer, int8_t value, int radix)
+{
+	uses_upper = false;
+	return int8_t_to_str(buffer, value, radix);
+}
+
+unsigned int int8_t_to_str_upper(char * restrict buffer, int8_t value, int radix)
+{
+	uses_upper = true;
+	return int8_t_to_str(buffer, value, radix);
+}
+
+unsigned int int16_t_to_str_lower(char * restrict buffer, int16_t value, int radix)
+{
+	uses_upper = false;
+	return int16_t_to_str(buffer, value, radix);
+}
+
+unsigned int int16_t_to_str_upper(char * restrict buffer, int16_t value, int radix)
+{
+	uses_upper = true;
+	return int16_t_to_str(buffer, value, radix);
+}
+
+unsigned int int32_t_to_str_lower(char * restrict buffer, int32_t value, int radix)
+{
+	uses_upper = false;
+	return int32_t_to_str(buffer, value, radix);
+}
+
+unsigned int int32_t_to_str_upper(char * restrict buffer, int32_t value, int radix)
+{
+	uses_upper = true;
+	return int32_t_to_str(buffer, value, radix);
+}
+
+unsigned int unsigned_int_to_str_lower(char * restrict buffer, unsigned int value, int radix)
+{
+	uses_upper = false;
+	return unsigned_int_to_str(buffer, value, radix);
+}
+
+unsigned int unsigned_int_to_str_upper(char * restrict buffer, unsigned int value, int radix)
+{
+	uses_upper = true;
+	return unsigned_int_to_str(buffer, value, radix);
+}
+
+unsigned int uint8_t_to_str_lower(char * restrict buffer, uint8_t value, int radix)
+{
+	uses_upper = false;;
+	return uint8_t_to_str(buffer, value, radix);
+}
+
+unsigned int uint8_t_to_str_upper(char * restrict buffer, uint8_t value, int radix)
+{
+	uses_upper = true;
+	return uint8_t_to_str(buffer, value, radix);
+}
+
+unsigned int uint16_t_to_str_lower(char * restrict buffer, uint16_t value, int radix)
+{
+	uses_upper = false;
+	return uint16_t_to_str(buffer, value, radix);
+}
+
+unsigned int uint16_t_to_str_upper(char * restrict buffer, uint16_t value, int radix)
+{
+	uses_upper = true;
+	return uint16_t_to_str(buffer, value, radix);
+}
+
+unsigned int uint32_t_to_str_lower(char * restrict buffer, uint32_t value, int radix)
+{
+	uses_upper = false;
+	return uint32_t_to_str(buffer, value, radix);
+}
+
+unsigned int uint32_t_to_str_upper(char * restrict buffer, uint32_t value, int radix)
+{
+	uses_upper = true;
+	return uint32_t_to_str(buffer, value, radix);
 }
 
 int str_to_int(const char * restrict str, int *value, int radix)
@@ -39,33 +131,64 @@ int str_to_int(const char * restrict str, int *value, int radix)
 
 /* static functions */
 
-#include <stdio.h>
-
-static int int_to_str(char *restrict buffer, int value, int radix)
+static unsigned int int_to_str(char *restrict buffer, int value, int radix)
 {
+	return int32_t_to_str(buffer, (int32_t)(value), radix);
+}
+
+static unsigned int int8_t_to_str(char * restrict buffer, int8_t value, int radix)
+{
+	return int32_t_to_str(buffer, (int32_t)(value), radix);
+}
+
+static unsigned int int16_t_to_str(char * restrict buffer, int16_t value, int radix)
+{
+	return int32_t_to_str(buffer, (int32_t)(value), radix);
+}
+
+static unsigned int int32_t_to_str(char * restrict buffer, int32_t value, int radix)
+{
+	unsigned int ret;
 	bool negative = value < 0;
-	int i = 0;
-	int nb_digits = nb_of_digits_in_base(value, radix) + (negative ? 1 : 0);
-	int ret = nb_digits;
-	buffer[nb_digits--] = '\0';
-	if(negative)
-		value = -value;
-	while(value > 0)
-	{
-		int tmp = value % radix;
-		/* we know that tmp >= 0 */
-		buffer[nb_digits--] = ((tmp <= 9) ? '0' + tmp : tmp-10 + (uses_upper ? 'A' : 'a'));  
-		value /= radix;
-	}
+	ret = uint32_t_to_str(buffer + (negative ? 1 : 0), (uint32_t)(negative ? -value : value), radix);
 	if(negative)
 		buffer[0] = '-';
 	return ret;
 }
 
-static int nb_of_digits_in_base(int n, int radix)
+static unsigned int unsigned_int_to_str(char * restrict buffer, unsigned int value, int radix)
 {
-	int divisor = 1;
-	int digits = 0;
+	return uint32_t_to_str(buffer, (uint32_t)(value), radix);
+}
+
+static unsigned int uint8_t_to_str(char * restrict buffer, uint8_t value, int radix)
+{
+	return uint32_t_to_str(buffer, (uint32_t)(value), radix);
+}
+
+static unsigned int uint16_t_to_str(char * restrict buffer, uint16_t value, int radix)
+{
+	return uint32_t_to_str(buffer, (uint32_t)(value), radix);
+}
+
+static unsigned int uint32_t_to_str(char * restrict buffer, uint32_t value, int radix)
+{
+	unsigned int nb_digits = nb_of_digits_in_base(value, radix);
+	unsigned int ret = nb_digits;
+	buffer[nb_digits--] = '\0';
+	while(value != 0)
+	{
+		uint32_t tmp = value % radix;
+		buffer[nb_digits--] = ((tmp <= 9) ? '0' + tmp : tmp-10 + (uses_upper ? 'A' : 'a'));
+		value /= radix;
+	}
+	return ret;
+}
+
+static unsigned int nb_of_digits_in_base(uint32_t n, int radix)
+{
+	unsigned int divisor = 1;
+	unsigned int digits = 0;
 	while(n / divisor != 0)
 	{
 		divisor *= radix;
@@ -78,8 +201,8 @@ static bool is_correct_digit_in_base(char digit, unsigned int radix)
 {
 	digit = tolower(digit);
 	if(radix <= 10)
-		return '0' <= digit && digit <= (radix-1) + '0';
+		return '0' <= digit && digit <= (char)((radix-1) + '0');
 	else
-		return isdigit(digit) || ('a' <= digit && digit < (radix-1) + 'a');
+		return isdigit(digit) || ('a' <= digit && digit < (char)((radix-1) + 'a'));
 }
 
