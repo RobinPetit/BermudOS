@@ -160,15 +160,19 @@ static int print_arg(const struct printf_arg_s *fmt_arg, va_list *arg_list)
 	{
 		int32_t_to_str_lower, int32_t_to_str_upper
 	};
+	static unsigned int (* const uint32_t_to_str_fns[2])(char * restrict, uint32_t, int) =
+	{
+		uint32_t_to_str_lower, uint32_t_to_str_upper
+	};
 	unsigned radix = ((fmt_arg->conversion_spec == 'd' || fmt_arg->conversion_spec == 'i') ? 10 :
 	                  (fmt_arg->conversion_spec == 'o' ? 8 : 16));
 	char buffer[BUFFER_LENGTH];
 	int lower_upper_idx = (fmt_arg->conversion_spec == 'X') ? 1 : 0;
 	union
 	{
-		/*void *p_arg;*/
+		void *p_arg;
 		int i_arg;
-		/*unsigned u_arg;*/
+		unsigned int u_arg;
 		/*char c_arg;*/
 		/*short s_arg;*/
 		/*long l_arg;*/
@@ -190,16 +194,21 @@ static int print_arg(const struct printf_arg_s *fmt_arg, va_list *arg_list)
 			int8_t_to_str_fns[lower_upper_idx](buffer, (int8_t)(arg.i_arg), radix);
 		else if(fmt_arg->len_modifier == SHORT)
 			int16_t_to_str_fns[lower_upper_idx](buffer, (int16_t)(arg.i_arg), radix);
-		else if(fmt_arg->len_modifier == LONG)
+		else if(fmt_arg->len_modifier == LONG || fmt_arg->len_modifier == INTMAX_T
+				|| fmt_arg->len_modifier == PTRDIFF_T)
 			int32_t_to_str_fns[lower_upper_idx](buffer, (int32_t)(arg.i_arg), radix);
-		else
-			putchar('E');
 		/*else if(fmt_arg->len_modifier == LONGLONG)
 			TODO: not handled yet */
-		/*else if(fmt_arg->modifier == SIZE_T)
-		else if(fmt_arg->modifier == INTMAX_T)
-		else if(fmt_arg->modifier == PTRDIFF_T)
-		else if(fmt_arg->modifier == LONGDOUBLE)*/
+		else if(fmt_arg->len_modifier == SIZE_T)
+			uint32_t_to_str_fns[lower_upper_idx](buffer, (uint32_t)(arg.i_arg), radix);
+		break;
+	case 'u':
+		arg.u_arg = va_arg(*arg_list, unsigned int);
+		uint32_t_to_str_fns[lower_upper_idx](buffer, arg.u_arg, 10);
+		break;
+	case 'p':
+		arg.p_arg = va_arg(*arg_list, void *);
+		uint32_t_to_str_upper(buffer, arg.u_arg, 16);  /* print addresses as upper hex string */
 		break;
 	case '%':
 		buffer[0] = '%';

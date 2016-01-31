@@ -1,3 +1,44 @@
-file(GLOB SOURCES "*.c" "**/*.c")
+SET(SOURCES
+        "ctype/isalnum.c"
+        "ctype/isalpha.c"
+        "ctype/isblank.c"
+        "ctype/iscntrl.c"
+        "ctype/isdigit.c"
+        "ctype/isgraph.c"
+        "ctype/islower.c"
+        "ctype/isprint.c"
+        "ctype/ispunct.c"
+        "ctype/isspace.c"
+        "ctype/isupper.c"
+        "ctype/isxdigit.c"
+        "ctype/tolower.c"
+        "ctype/toupper.c"
+        #
+        "stdio/printf.c"
+        "stdio/putchar.c"
+        "stdio/puts.c"
+        #
+        "strconv/int.c"
+        #
+        "string/memchr.c"
+        "string/memcmp.c"
+        "string/memcpy.c"
+        "string/memmove.c"
+        "string/memset.c"
+        "string/strcat.c"
+        "string/strchr.c"
+        "string/strcmp.c"
+        "string/strcpy.c"
+        "string/strcspn.c"
+        "string/strlen.c"
+        "string/strncat.c"
+        "string/strncmp.c"
+        "string/strncpy.c"
+        "string/strpbrk.c"
+        "string/strrchr.c"
+        "string/strspn.c"
+        "string/strstr.c"
+        "string/strtok.c"
+    )
 
 add_library(libc ${SOURCES})

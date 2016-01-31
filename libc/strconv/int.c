@@ -187,11 +187,10 @@ static unsigned int uint32_t_to_str(char * restrict buffer, uint32_t value, int 
 
 static unsigned int nb_of_digits_in_base(uint32_t n, int radix)
 {
-	unsigned int divisor = 1;
 	unsigned int digits = 0;
-	while(n / divisor != 0)
+	while(n != 0)
 	{
-		divisor *= radix;
+		n /= radix;
 		++digits;
 	}
 	return digits;
