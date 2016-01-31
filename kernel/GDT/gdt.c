@@ -1,5 +1,7 @@
 #include "gdt.h"
 
+extern void gdt_flush(void);
+
 #define GDT_SET_BASE(gdt, address, index) \
 	gdt[index].base_low    =  address        & 0xFFFF; \
 	gdt[index].base_middle = (address >> 16) & 0xFF; \

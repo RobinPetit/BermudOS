@@ -37,6 +37,7 @@ size_t strlen(const char *);
 
 /* MEMORY */
 
+#define memset(add, byte, length) memsetb(add, byte, length)
 void *memsetb(void *, BYTE, size_t);
 void *memsetw(void *, WORD, size_t);
 void *memsetd(void *, DWORD, size_t);

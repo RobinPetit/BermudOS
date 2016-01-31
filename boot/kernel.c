@@ -12,6 +12,7 @@
 #include "../kernel/interrupts/APIC/apic.h"
 #include "../kernel/MSR/MSR.h"
 #include "../kernel/GDT/gdt.h"
+#include "../kernel/interrupts/idt.h"
 
 struct terminal_s terminal;
 
@@ -49,5 +50,6 @@ void kernel_main(void)
 	puts(is_apic_compatible() ? "HARDWARE IS APIC COMPATIBLE" : "HARDWARE IS NOT APIC COMPATIBLE");
 	puts(has_MSR() ? "CPU HAS MSR" : "CPU HAS NO MSR");
 	puts(gdt_setup() ? "GDT setup correctly" : "Error while setting up GDT");
+	puts(idt_setup() ? "IDT setup correctly" : "Error while setting up IDT");
 }
 

@@ -1,5 +1,6 @@
 set(SOURCES
         "interrupts/APIC/apic.c"
+		"interrupts/idt.c"
         #
         "MSR/MSR.c"
         #

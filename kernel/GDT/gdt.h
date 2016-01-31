@@ -18,8 +18,6 @@
 #define GDT_PROTECTED_16_BIT GDT_PROTECTED_MODE(0)
 #define GDT_PROTECTED_32_BIT GDT_PROTECTED_MODE(1)
 
-extern void gdt_flush(void);
-
 struct gdt_entry  /* exactly 64 bits */
 {
 	uint16_t limit_low;
