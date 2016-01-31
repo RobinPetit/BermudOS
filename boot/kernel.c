@@ -9,6 +9,9 @@
 #include "../kernel/terminal/terminal.h"
 #include <stdio.h>
 #include <string.h>
+#include "../kernel/interrupts/APIC/apic.h"
+#include "../kernel/MSR/MSR.h"
+#include "../kernel/GDT/gdt.h"
 
 struct terminal_s terminal;
 
@@ -43,5 +46,8 @@ void kernel_main(void)
 	printf("format is %%X %%x %%d %%i %%o... and result is %X %x %d %i %o\n",
 	       256, 256, 256, 256, 256);
 	test_string_h();
+	puts(is_apic_compatible() ? "HARDWARE IS APIC COMPATIBLE" : "HARDWARE IS NOT APIC COMPATIBLE");
+	puts(has_MSR() ? "CPU HAS MSR" : "CPU HAS NO MSR");
+	puts(gdt_setup() ? "GDT setup correctly" : "Error while setting up GDT");
 }
 

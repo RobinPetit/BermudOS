@@ -3,9 +3,12 @@ set(SOURCES
         #
         "MSR/MSR.c"
         #
-        terminal/terminal.c
+        "terminal/terminal.c"
         #
-        video/VGA_management.c
+        "video/VGA_management.c"
+		#
+		"GDT/gdt.c"
+		"GDT/gdt.asm"
     )
 
 add_library(kernel ${SOURCES})
