@@ -40,6 +40,21 @@ void test_string_h(void)
 	}
 }
 
+void test_sprintf(void)
+{
+	char buffer[512] = "";
+	sprintf(buffer, "sprintf test:\n"
+	                "  [%c]==[a]\n"
+	                "  [to copy]==[%s]\n"
+					"  [%2c]==[ c]\n"
+					"  [%-2c]==[c ]\n"
+					"  [%10s]==[       str]\n"
+					"  [%-10s]==[str       ]\n"
+					"  [%10.2s]==[        st]",
+					'a', "to copy", 'c', 'c', "str", "str", "str");
+	puts(buffer);
+}
+
 void kernel_main(void)
 {
 	terminal_init();
@@ -47,12 +62,13 @@ void kernel_main(void)
 	printf("This is BermudOS with printf!\n");
 	printf("format is %%X %%x %%d %%i %%o... and result is %X %x %d %i %o\n",
 	       256, 256, 256, 256, 256);
-	test_string_h();
+	// test_string_h();
+	test_sprintf();
 	puts(is_apic_compatible() ? "HARDWARE IS APIC COMPATIBLE" : "HARDWARE IS NOT APIC COMPATIBLE");
 	puts(has_MSR() ? "CPU HAS MSR" : "CPU HAS NO MSR");
 	puts(gdt_setup() ? "GDT setup correctly" : "Error while setting up GDT");
 	puts(idt_setup() ? "IDT setup correctly" : "Error while setting up IDT");
 	puts(isrs_setup() ? "ISRs setup correctly" : "Error while setting up ISRs");
-	(4/0);
+	__asm__ __volatile__("INT $0x00");
 }
 

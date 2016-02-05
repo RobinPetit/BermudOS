@@ -202,6 +202,6 @@ static bool is_correct_digit_in_base(char digit, unsigned int radix)
 	if(radix <= 10)
 		return '0' <= digit && digit <= (char)((radix-1) + '0');
 	else
-		return isdigit(digit) || ('a' <= digit && digit < (char)((radix-1) + 'a'));
+		return isdigit(digit) || ('a' <= digit && digit < (char)((radix-10) + 'a'));
 }
 

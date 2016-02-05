@@ -6,6 +6,9 @@
 int printf(const char * restrict, ...);
 int vprintf(const char * restrict, va_list);
 
+int sprintf(char *, const char *, ...);
+int vsprintf(char *, const char *, va_list);
+
 int puts(const char * restrict);
 
 int putchar(int);
