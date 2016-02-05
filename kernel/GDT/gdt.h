@@ -20,13 +20,23 @@
 
 struct gdt_entry  /* exactly 64 bits */
 {
-	uint16_t limit_low;
-	uint16_t base_low;
-	uint8_t base_middle;
-	uint8_t access;
-	uint8_t limit_high:4;
-	uint8_t granularity:4;
-	uint8_t base_high;
+	union
+	{
+		struct
+		{
+			uint16_t limit_low;
+			uint16_t base_low;
+			uint8_t base_middle;
+			uint8_t access;
+			uint8_t limit_high:4;
+			uint8_t granularity:4;
+			uint8_t base_high;
+		};
+		struct
+		{
+			uint8_t bytes[8];
+		};
+	};
 } __attribute__((packed));  /* GCC specification to force no padding bit */
 
 struct gdt_pointer  /* exactly 48 bits */

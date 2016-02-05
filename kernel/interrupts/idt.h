@@ -7,6 +7,15 @@
 
 #define BERMUDOS_IDT_NB_ENTRY 0x0100
 
+#define SEGMENT_PRESENCE(p) (p << 2)
+#define SEGMENT_PRESENT SEGMENT_PRESENCE(1)
+#define SEGMENT_NOT_PRESENT SEGMENT_PRESENCE(0)
+
+#define RING_OS 0
+#define RING_USER 3
+
+#define MAKE_IDT_FLAG(presence, ring) (presence | ring)
+
 struct idt_entry
 {
 	uint16_t base_low;
@@ -26,5 +35,8 @@ struct idt_pointer
 void idt_load(void);
 bool idt_set_entry(size_t, uint32_t, uint16_t, uint8_t);
 bool idt_setup(void);
+
+extern struct idt_entry kernel_IDT[BERMUDOS_IDT_NB_ENTRY];
+extern struct idt_pointer idt_location;
 
 #endif  /* IDCT_H */

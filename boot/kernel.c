@@ -13,6 +13,7 @@
 #include "../kernel/MSR/MSR.h"
 #include "../kernel/GDT/gdt.h"
 #include "../kernel/interrupts/idt.h"
+#include "../kernel/interrupts/ISR/isr.h"
 
 struct terminal_s terminal;
 
@@ -51,5 +52,7 @@ void kernel_main(void)
 	puts(has_MSR() ? "CPU HAS MSR" : "CPU HAS NO MSR");
 	puts(gdt_setup() ? "GDT setup correctly" : "Error while setting up GDT");
 	puts(idt_setup() ? "IDT setup correctly" : "Error while setting up IDT");
+	puts(isrs_setup() ? "ISRs setup correctly" : "Error while setting up ISRs");
+	(4/0);
 }
 
