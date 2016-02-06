@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdint.h>
-/* #include <div64.h> */  /* find a way to make 64 bit division in 32 bit mode */
+#include <div64.h> /* find a way to make 64 bit division in 32 bit mode */
 
 /* static prototypes */
 
