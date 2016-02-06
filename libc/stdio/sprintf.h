@@ -15,11 +15,13 @@ struct sprintf_arg_s
 
 enum sprintf_flags_e
 {
-	MINUS = 1 << 0,  /* left justifies */
-	PLUS = 1 << 1,   /* forces to sign the value */
-	SPACE = 1 << 2,  /* adds a space if no sign is written */
-	SHARP = 1 << 3,  /* explicits the base the number is written in */
-	ZERO = 1 << 4    /* uses '0' as padding instead of ' ' */
+	MINUS = 1 << 0,      /* left justifies */
+	PLUS = 1 << 1,       /* forces to sign the value */
+	SPACE = 1 << 2,      /* adds a space if no sign is written */
+	SHARP = 1 << 3,      /* explicits the base the number is written in */
+	ZERO = 1 << 4,       /* uses '0' as padding instead of ' ' */
+	/* leave 1 << 5 empty on purpose */
+	UPPER_VASE = 1 << 6  /* not possible to give in format: only used to differenciate %x and %X */
 };
 
 enum sprintf_length_modifier_e

@@ -145,15 +145,87 @@ static int find_length_modifier(BYTE *modifier, const char * restrict str)
 	return (*modifier == NONE ? 0 : ((*modifier == CHAR || *modifier == LONGLONG) ? 2 : 1));
 }
 
+static int append_number(char * restrict dest, uint64_t number, unsigned int radix, bool upper, struct sprintf_arg_s *args, bool negative)
+{
+	char *save = dest;
+	unsigned int i;
+	unsigned int nb_digits;
+	static char buffer[64];  /* static array (so it is not re-allocated each time) that may contain any conversion of number */
+	int width_minus_prec;
+	if(args->flags & MINUS)
+		args->flags &= ~ZERO;  /* do not use zeros to right-pad */
+	if(radix < 2 || radix > 36)
+		return 0;  /* if radix is not handled (or does not exist), write nothing */
+
+	/* check sign */
+	if(negative)
+	{
+		if((int64_t)number < 0)  /* if value is actually negative */
+		{
+			*dest++ = '-';
+			number = -(int64_t)(number);  /* rest assured no unsigned conversion has corrupted the value*/
+		}
+		else
+		{
+			if(args->flags & PLUS)  /* if sign is forced to appear */
+				*dest++ = '+';
+			else if(args->flags & SPACE)  /* if a space must appear if no sign is necessary */
+				*dest++ = ' ';
+		}
+	}
+
+	/* check prefix */
+	if(args->flags & SHARP)
+	{
+		if(radix == 0x10)
+		{
+			*dest++ = '0';
+			*dest++ = upper ? 'X' : 'x';
+		}
+		else if(radix == 0x08)
+			*dest++ = '0';
+	}
+
+	nb_digits = upper ? uint64_t_to_str_upper(buffer, number, radix) : uint64_t_to_str_lower(buffer, number, radix);
+	if(nb_digits > args->precision)
+		args->precision = nb_digits;  /* precision is the minimum number of digits */
+	width_minus_prec = args->width - args->precision;
+	/* check padding */
+	if(!(args->flags & MINUS))  /* if not left-aligned */
+	{
+		memsetb(dest, args->flags & ZERO ? '0' : ' ', width_minus_prec);
+		dest += width_minus_prec;
+	}
+	for(i = 0; i < args->precision - nb_digits; ++i)
+		*dest++ = '0';
+	strncpy(dest, buffer, nb_digits);
+	dest += nb_digits;
+	if(args->flags & MINUS)  /* if left-aligned */
+	{
+		memset(dest, ' ', width_minus_prec);
+		dest += width_minus_prec;
+	}
+	return dest - save;
+}
+
 static int append_formatted_arg(char * restrict dest, struct sprintf_arg_s *arg, va_list *arg_list)
 {
 	char *buf;
+	void *ptr;
 	size_t buf_len;
 	int i = 0;
 	int limit;
 	int ret;
+	int radix;
+	uint64_t number;
+	bool upper;
+	bool negative;
+
 	switch(arg->conversion_spec)
 	{
+	case '%':
+		dest[0] = '%';
+		break;
 	case 'c':  /* character */
 		limit = arg->width - 1;
 		if(!(arg->flags & MINUS))  /* if not left-aligned */
@@ -183,8 +255,39 @@ static int append_formatted_arg(char * restrict dest, struct sprintf_arg_s *arg,
 				dest[buf_len+i] = ' ';
 		ret = (limit > 0) ? buf_len + limit : buf_len;
 		break;
+	case 'p':  /* address */
+		ptr = va_arg(*arg_list, void *);
+		ret = sprintf(dest, "0x%08X", (uint32_t)(ptr));
+		break;
 	default:
-		ret = 0;
+		if(strchr("odixX", arg->conversion_spec) == NULL)
+			return 0;
+		/* init radix */
+		if(arg->conversion_spec == 'o')
+			radix = 0x08;
+		else if(arg->conversion_spec == 'd' || arg->conversion_spec == 'i')
+			radix = 0x0A;
+		else
+			radix = 0x10;
+
+		/* determine whether lowercase or upper case must be used */
+		upper = arg->conversion_spec == 'X';
+
+		/* determien if value may be negative */
+		negative = (radix == 0x0A);
+
+		/* use length modifier */
+		if(arg->len_modifier == LONGLONG)
+			number = (negative) ? va_arg(arg_list, int64_t) : va_arg(arg_list, uint64_t);
+		else if(arg->len_modifier == NONE || arg->len_modifier == LONG)
+			number = ((negative) ? (int64_t)va_arg(arg_list, int32_t) : (uint64_t)va_arg(arg_list, uint32_t));
+		/* uint16_t is promoted to uint32_t */
+		else if(arg->len_modifier == SHORT)
+			number = ((negative) ? (int64_t)((int16_t)va_arg(arg_list, int32_t)) : (uint64_t)((uint16_t)va_arg(arg_list, uint32_t)));
+		/* uint8_t is promoted to uint32_t */
+		else if(arg->len_modifier == CHAR)
+			number = (negative) ? (int64_t)((int8_t)va_arg(arg_list, int32_t)) : (uint64_t)((uint8_t)va_arg(arg_list, uint32_t));
+		append_number(dest, number, radix, upper, arg, negative);
 		break;
 	}
 	return ret;
