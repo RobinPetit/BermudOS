@@ -54,8 +54,8 @@ bool clear_irq(int idx)
 static void irq_remap(void)
 {
 	/* send message to both PICS controllers so they are waiting for 3 next data bytes */
-	outb(MASTER_PIC_DATA, PIC_INITIALIZATION);
-	outb(SLAVE_PIC_DATA, PIC_INITIALIZATION);
+	outb(MASTER_PIC_COMMAND, PIC_INITIALIZATION);
+	outb(SLAVE_PIC_COMMAND, PIC_INITIALIZATION);
 
 	/* first data byte is new offset */
 	outb(MASTER_PIC_DATA, 0x20);  /* IRQs 0 -> 7  are redirected to IDT at idx 32 -> 39 */

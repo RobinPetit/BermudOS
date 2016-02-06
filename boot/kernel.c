@@ -15,6 +15,7 @@
 #include "../kernel/interrupts/idt.h"
 #include "../kernel/interrupts/ISR/isr.h"
 #include "../kernel/interrupts/IRQ/irq.h"
+#include "../kernel/interrupts/PIT/interval_timer.h"
 #include <div64.h>
 
 struct terminal_s terminal;
@@ -62,22 +63,37 @@ bool test_div64(void)
 	return dividend == 0x0000000100000001 && remainder == 0;
 }
 
+bool test_libc(void)
+{
+	// test_string_h();
+	return test_sprintf() && test_div64();
+}
+
+void setup_interrupts(void)
+{
+	if(!idt_setup())
+		puts("Error while setting up IDT");
+	else if(!isrs_setup())
+		puts("Error while setting up ISRs");
+	else if(!irq_setup())
+		puts("Error while setting up IRQs");
+	else if(!timer_setup())
+		puts("Error while setting up timer");
+	else
+		puts("interruptions setup correctly");
+}
+
 void kernel_main(void)
 {
 	terminal_init();
-	puts("This is BermudOS with puts!");
-	printf("This is BermudOS with printf!\n");
-	printf("format is %%X %%x %%d %%i %%o... and result is %X %x %d %i %o\n",
-	       256, 256, 256, 256, 256);
-	// test_string_h();
-	puts(test_sprintf() ? "sprintf IS working" : "sprint IS NOT working");
-	puts(test_div64() ? "div64 IS working" : "div64 IS NOT wirking");
-	puts(is_apic_compatible() ? "HARDWARE IS APIC COMPATIBLE" : "HARDWARE IS NOT APIC COMPATIBLE");
-	puts(has_MSR() ? "CPU HAS MSR" : "CPU HAS NO MSR");
-	puts(gdt_setup() ? "GDT setup correctly" : "Error while setting up GDT");
-	puts(idt_setup() ? "IDT setup correctly" : "Error while setting up IDT");
-	puts(isrs_setup() ? "ISRs setup correctly" : "Error while setting up ISRs");
-	puts(irq_setup() ? "IRQs setup correctly" : "Error while setting up IRQs");
-	__asm__ __volatile__("INT $0x00");
+	puts("This is BermudOS!");
+	if(!is_apic_compatible())
+		puts("Hardware is not APIC compatible");
+	if(!has_MSR())
+		puts("CPU has no MSR");
+	if(!gdt_setup())
+		puts("Error while setting up GDT");
+	setup_interrupts();
+	// __asm__ __volatile__("INT $0x00");
 }
 

@@ -55,6 +55,8 @@ set(SOURCES
         "interrupts/IRQ/irq_management.asm"
         "interrupts/IRQ/irq.c"
         #
+        "interrupts/PIT/interval_timer.c"
+        #
         "MSR/MSR.c"
         #
         "terminal/terminal.c"

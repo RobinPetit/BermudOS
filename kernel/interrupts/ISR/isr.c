@@ -74,7 +74,7 @@ void fault_handler(struct interrupt_stack_state *registers)
 {
 	if(registers->interrupt_id < 32)
 	{
-		printf("Exception caught: %s\n... Halting ...\n", interrupt_names[registers->interrupt_id]);
+		printf("Exception caught: %s with error code: %d\n... Halting ...\n", interrupt_names[registers->interrupt_id], registers->error_code);
 		while(true)
 			;
 	}
