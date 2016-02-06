@@ -14,6 +14,7 @@
 #include "../kernel/GDT/gdt.h"
 #include "../kernel/interrupts/idt.h"
 #include "../kernel/interrupts/ISR/isr.h"
+#include <div64.h>
 
 struct terminal_s terminal;
 
@@ -40,19 +41,24 @@ void test_string_h(void)
 	}
 }
 
-void test_sprintf(void)
+bool test_sprintf(void)
 {
 	char buffer[512] = "";
-	sprintf(buffer, "sprintf test:\n"
-	                "  [%c]==[a]\n"
-	                "  [to copy]==[%s]\n"
-					"  [%2c]==[ c]\n"
-					"  [%-2c]==[c ]\n"
-					"  [%10s]==[       str]\n"
-					"  [%-10s]==[str       ]\n"
-					"  [%10.2s]==[        st]",
-					'a', "to copy", 'c', 'c', "str", "str", "str");
-	puts(buffer);
+	bool ret;
+	sprintf(buffer, "%c %s %2c %-2c %10s %-10s %10.2s",
+	        'a', "to copy", 'c', 'c', "str", "str", "str");
+	ret = strcmp(buffer, "a to copy  c c         str str                st") == 0;
+	sprintf(buffer, "%d %x %#x %i %#07o", 24, 16, 32, 0, 65535);
+	ret = ret && strcmp (buffer, "24 10 0x20 0 00177777") == 0;
+	return ret;
+}
+
+bool test_div64(void)
+{
+	uint64_t dividend = 0xFFEEFFEEFFEEFFEEULL;
+	uint32_t divisor  = 0xFFEEFFEE;
+	uint32_t remainder = do_div(dividend, divisor);
+	return dividend == 0x0000000100000001 && remainder == 0;
 }
 
 void kernel_main(void)
@@ -63,7 +69,8 @@ void kernel_main(void)
 	printf("format is %%X %%x %%d %%i %%o... and result is %X %x %d %i %o\n",
 	       256, 256, 256, 256, 256);
 	// test_string_h();
-	test_sprintf();
+	puts(test_sprintf() ? "sprintf IS working" : "sprint IS NOT working");
+	puts(test_div64() ? "div64 IS working" : "div64 IS NOT wirking");
 	puts(is_apic_compatible() ? "HARDWARE IS APIC COMPATIBLE" : "HARDWARE IS NOT APIC COMPATIBLE");
 	puts(has_MSR() ? "CPU HAS MSR" : "CPU HAS NO MSR");
 	puts(gdt_setup() ? "GDT setup correctly" : "Error while setting up GDT");
