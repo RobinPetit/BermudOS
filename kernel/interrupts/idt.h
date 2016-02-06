@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define CODE_SEGMENT 0x10
+#define DATA_SEGMENT 0x08
+
 #define BERMUDOS_IDT_NB_ENTRY 0x0100
 
 #define SEGMENT_PRESENCE(p) (p << 2)
@@ -38,5 +41,14 @@ bool idt_setup(void);
 
 extern struct idt_entry kernel_IDT[BERMUDOS_IDT_NB_ENTRY];
 extern struct idt_pointer idt_location;
+
+/* registers pushed onto the stack before the fault_handler is called in correct order */
+struct interrupt_stack_state  /* works for isr and irq */
+{
+	uint32_t gs, fs, es, ds,
+	         edi, esi, ebp, esp, ebx, edx, ecx, eax,
+	         interrupt_id, error_code,
+	         eip, cs, eflags, userresp, ss;
+};
 
 #endif  /* IDCT_H */

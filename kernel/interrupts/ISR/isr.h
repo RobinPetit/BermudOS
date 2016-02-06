@@ -4,18 +4,6 @@
 #include <stdbool.h>
 #include "../idt.h"
 
-#define CODE_SEGMENT 0x10
-#define DATA_SEGMENT 0x08
-
-/* registers pushed onto the stack before the fault_handler is called in correct order */
-struct isr_stack_state
-{
-	uint32_t gs, fs, es, ds,
-	         edi, esi, ebp, esp, ebx, edx, ecx, eax,
-	         interrupt_id, error_code,
-	         eip, cs, eflags, userresp, ss;
-};
-
 static const char * const interrupt_names[32] =
 {
 	/* 0x00 */ "Division By Zero Exception",
@@ -53,6 +41,6 @@ static const char * const interrupt_names[32] =
 };
 
 bool isrs_setup(void);
-void fault_handler(struct isr_stack_state *);
+void fault_handler(struct interrupt_stack_state *);
 
 #endif /* ISR_H */

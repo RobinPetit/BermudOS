@@ -6,7 +6,6 @@
 #include <mem/_memtypes.h>
 #include <strconv/strconv.h>
 #include "../../kernel/terminal/terminal.h"
-#include "printf.h"
 
 static char buffer[512];  /* buffer to use sprintf and then write on screen */
 

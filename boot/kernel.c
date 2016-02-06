@@ -6,14 +6,15 @@
 #endif
 
 /* Only compiler-specific headers can be included */
-#include "../kernel/terminal/terminal.h"
 #include <stdio.h>
 #include <string.h>
+#include "../kernel/terminal/terminal.h"
 #include "../kernel/interrupts/APIC/apic.h"
 #include "../kernel/MSR/MSR.h"
 #include "../kernel/GDT/gdt.h"
 #include "../kernel/interrupts/idt.h"
 #include "../kernel/interrupts/ISR/isr.h"
+#include "../kernel/interrupts/IRQ/irq.h"
 #include <div64.h>
 
 struct terminal_s terminal;
@@ -76,6 +77,7 @@ void kernel_main(void)
 	puts(gdt_setup() ? "GDT setup correctly" : "Error while setting up GDT");
 	puts(idt_setup() ? "IDT setup correctly" : "Error while setting up IDT");
 	puts(isrs_setup() ? "ISRs setup correctly" : "Error while setting up ISRs");
+	puts(irq_setup() ? "IRQs setup correctly" : "Error while setting up IRQs");
 	__asm__ __volatile__("INT $0x00");
 }
 

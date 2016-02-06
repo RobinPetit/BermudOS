@@ -17,7 +17,7 @@ isr_management:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	; Save the stack onto the stack (parameter tofault_handler)
+	; Save the stack onto the stack (parameter to fault_handler)
 	mov eax, esp
 	push eax
 	mov eax, fault_handler

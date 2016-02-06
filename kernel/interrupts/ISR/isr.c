@@ -1,4 +1,5 @@
 #include "isr.h"
+#include <stdio.h>
 
 extern void isr0(void);
 extern void isr1(void);
@@ -69,11 +70,11 @@ bool isrs_setup(void)
 		&& idt_set_entry(31, (uint32_t)((void *)(isr31)), CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS));
 }
 
-void fault_handler(struct isr_stack_state *registers)
+void fault_handler(struct interrupt_stack_state *registers)
 {
 	if(registers->interrupt_id < 32)
 	{
-		printf("Exception caught: ");printf(interrupt_names[registers->interrupt_id]);printf("\nHalting.\n");
+		printf("Exception caught: %s\n... Halting ...\n", interrupt_names[registers->interrupt_id]);
 		while(true)
 			;
 	}
