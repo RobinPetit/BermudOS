@@ -73,7 +73,8 @@ static void irq_remap(void)
 bool irq_setup(void)
 {
 	irq_remap();
-	return idt_set_entry(0x20, (uint32_t)((void *)(irq0)),  CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS))
+	bool ret;
+	ret =  idt_set_entry(0x20, (uint32_t)((void *)(irq0)),  CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS))
 		&& idt_set_entry(0x21, (uint32_t)((void *)(irq1)),  CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS))
 		&& idt_set_entry(0x22, (uint32_t)((void *)(irq2)),  CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS))
 		&& idt_set_entry(0x23, (uint32_t)((void *)(irq3)),  CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS))
@@ -89,6 +90,9 @@ bool irq_setup(void)
 		&& idt_set_entry(0x2D, (uint32_t)((void *)(irq13)), CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS))
 		&& idt_set_entry(0x2E, (uint32_t)((void *)(irq14)), CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS))
 		&& idt_set_entry(0x2F, (uint32_t)((void *)(irq15)), CODE_SEGMENT, MAKE_IDT_FLAG(SEGMENT_PRESENT, RING_OS));
+	if(ret)
+		__asm__ __volatile__("sti");  /* if everything went well, enable interrupts */
+	return ret;
 }
 
 void irq_handler(struct interrupt_stack_state *registers)
