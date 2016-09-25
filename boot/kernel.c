@@ -8,6 +8,7 @@
 /* Only compiler-specific headers can be included */
 #include <stdio.h>
 #include <string.h>
+#include <div64.h>
 #include "../kernel/terminal/terminal.h"
 #include "../kernel/interrupts/APIC/apic.h"
 #include "../kernel/MSR/MSR.h"
@@ -16,8 +17,7 @@
 #include "../kernel/interrupts/ISR/isr.h"
 #include "../kernel/interrupts/IRQ/irq.h"
 #include "../kernel/interrupts/PIT/interval_timer.h"
-#include <div64.h>
-#include <BermudOS/wait.h>
+#include "../kernel/keyboard/keyboard.h"
 
 struct terminal_s terminal;
 
@@ -95,12 +95,8 @@ void kernel_main(void)
 	if(!gdt_setup())
 		puts("Error while setting up GDT");
 	setup_interrupts();
-	printf("Waiting 3 seconds.");
-	wait_sec(1);
-	printf(".");
-	wait_sec(1);
-	printf(".");
-	wait_sec(1);
-	puts(" Ok!");
+	if(!keyboard_setup())
+		puts("Error while setting up the keyboard");
+	wait_sec(1000);
 }
 
