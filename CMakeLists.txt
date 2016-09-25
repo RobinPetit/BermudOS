@@ -44,4 +44,6 @@ add_custom_command(TARGET ${PROJECT_NAME}.bin POST_BUILD COMMAND
 #Finaly create the iso with grub
 add_custom_command(TARGET ${PROJECT_NAME}.bin POST_BUILD COMMAND
 	grub-mkrescue -o ${PROJECT_NAME}.iso ${CMAKE_BINARY_DIR}/boot/iso)
+add_custom_command(TARGET ${PROJECT_NAME}.bin POST_BUILD COMMAND
+	mv ${PROJECT_NAME}.iso ../${PROJECT_NAME}.iso)
 

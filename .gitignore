@@ -19,3 +19,5 @@ CMakeFiles/
 *.cmake
 **/*.cmake
 CMakeCache.txt
+
+build/
