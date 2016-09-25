@@ -22,9 +22,10 @@ enum PIT_mode_e
 #define PIT_4_DIGITS_BCR 0x01
 
 #define PIT_MAKE_BYTE(counter, data_info, mode, bit_counter) \
-	((counter << 6) | (data_info << 4) | (mode << 1) | counter)
+	(BYTE)(((counter & 0x03) << 6) | ((data_info & 0x03) << 4) | ((mode & 0x07) << 1) | (bit_counter & 0x01))
 
 static uint32_t tick_frequency = PIT_DEFAULT_FREQUENCY;
+static volatile uint32_t PIT_current_tick = 0;  /* declare it volatile since it is modified inside the related irq manager */
 
 void timer_handler(struct interrupt_stack_state *);
 static void set_timer_divisor(uint16_t);
@@ -53,15 +54,21 @@ static void set_timer_divisor(uint16_t divisor)
 	 * first low byte then high byte*/
 	outb(PIT_COMMAND, PIT_MAKE_BYTE(0, PIT_LOW_HIGH_BYTE, SQUARE_WAVE, PIT_16_BITS_BINARY_VALUE));
 	outb(PIT_DATA_CHANNEL_0, divisor & 0xFF);  /* low byte */
-	outb(PIT_DATA_CHANNEL_0, divisor >> 8);
+	outb(PIT_DATA_CHANNEL_0, (divisor >> 8) & 0xFF);
 }
 
 void timer_handler(struct interrupt_stack_state *registers)
 {
-	static uint32_t ticks = 0;
-	++ticks;
-	printf("ticks = %d\n", ticks);
-	if(ticks % tick_frequency == 0)
-		puts("One more second");
+	++PIT_current_tick;
+}
+
+uint32_t get_current_PIT_tick(void)
+{
+	return PIT_current_tick;
+}
+
+uint32_t seconds_to_ticks(uint32_t sec)
+{
+	return sec * tick_frequency;
 }
 

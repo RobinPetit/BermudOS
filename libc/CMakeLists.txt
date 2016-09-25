@@ -40,6 +40,8 @@ SET(SOURCES
 		"string/strspn.c"
 		"string/strstr.c"
 		"string/strtok.c"
+		#
+		"BermudOS/wait.c"
 	)
 
 add_library(libc ${SOURCES})
