@@ -97,6 +97,13 @@ void kernel_main(void)
 	setup_interrupts();
 	if(!keyboard_setup())
 		puts("Error while setting up the keyboard");
-	wait_sec(1000);
+	wait_sec(4);
+	char bfr[KEYBOARD_BUFFER_SIZE+1];
+	int i;
+	for(i = 0; i < 4; ++i)
+	{
+		read_keyboard_buffer(bfr);
+		printf("The buffer contained: %s", bfr);
+	}
 }
 
